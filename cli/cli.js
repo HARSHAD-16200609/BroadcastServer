@@ -7,7 +7,7 @@ const args = process.argv.slice(2);
 
 
 const command = args[0];
-const port = args[1] || process.env.PORT || 8080;
+const url = args[1] || process.env.PORT || 8080;
 
 switch (command) {
   case "start":
@@ -25,7 +25,7 @@ switch (command) {
         // For simplicity, if it's a number, assume localhost:port.
         // If the user wants a remote host, they should provide the full URL.
         if (!isNaN(url)) {
-            url = `ws://localhost:${url}`;
+            url = `${url}`;
         }
         // If it's not a number, maybe they typed 'google.com', but let's stick to full URLs for clarity or port numbers.
     }
