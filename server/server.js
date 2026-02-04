@@ -45,7 +45,9 @@ export function startServer(port = 8080) {
     });
   });
 
-  server.listen(port, () => {
-    console.log(`🟢 Server running on ws://localhost:${port}`);
+const PORT = process.env.PORT || 8000;
+
+  server.listen(PORT, () => {
+    console.log(`🟢 Server running on port ${PORT}`);
   });
 }

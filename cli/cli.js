@@ -15,18 +15,7 @@ switch (command) {
     break;
 
   case "connect":
-     // If the second argument is a full URL (starts with ws:// or wss://), use it.
-     // Otherwise, assume it's a port or default to localhost:8080
-    let url = args[1];
-    if (!url) {
-      url = "ws://localhost:8080";
-    } else if (!url.startsWith("ws://") && !url.startsWith("wss://")) {
-  
-        if (!isNaN(url)) {
-            url = `${url}`;
-        }
-       
-    }
+     
     startClient(url);
     break;
 
