@@ -11,7 +11,7 @@ const url = args[1] || process.env.PORT || 8080;
 
 switch (command) {
   case "start":
-    startServer(port);
+    startServer(url);
     break;
 
   case "connect":
@@ -21,13 +21,11 @@ switch (command) {
     if (!url) {
       url = "ws://localhost:8080";
     } else if (!url.startsWith("ws://") && !url.startsWith("wss://")) {
-        // Assume it's just a port number if it looks like one, otherwise maybe a host?
-        // For simplicity, if it's a number, assume localhost:port.
-        // If the user wants a remote host, they should provide the full URL.
+  
         if (!isNaN(url)) {
             url = `${url}`;
         }
-        // If it's not a number, maybe they typed 'google.com', but let's stick to full URLs for clarity or port numbers.
+       
     }
     startClient(url);
     break;
