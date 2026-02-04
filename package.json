@@ -1,0 +1,14 @@
+{
+  "name": "broadcast-server",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "broadcast-server": "./cli/cli.js"
+  },
+  "scripts": {
+    "start": "node cli/cli.js start"
+  },
+  "dependencies": {
+    "ws": "^8.19.0"
+  }
+}
