@@ -52,7 +52,8 @@ export function startServer(port = 8080) {
 
       // Inform the user of their identity
       try {
-        ws.send(`Welcome! You are ${ws.username} ${ws.color("●")}`);
+        const styledWelcomeName = chalk.bgGray.white.bold(` ${ws.username} `);
+        ws.send(`Welcome! You are ${styledWelcomeName} ${ws.color("●")}`);
       } catch (sendError) {
         console.error(chalk.red.bold(`✗ Error sending welcome message:`), sendError.message);
       }
