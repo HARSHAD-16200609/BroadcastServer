@@ -1,6 +1,7 @@
 import http from "http";
 import WebSocket, { WebSocketServer } from "ws";
-import chalk from "chalk";
+import { Chalk } from "chalk";
+const chalk = new Chalk({ level: 3 }); // Force styling output for headless servers
 import { animeProtagonists } from "../app/usernames.js";
 
 export function startServer(port = 8080) {
