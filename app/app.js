@@ -76,13 +76,14 @@ export function startClient(url) {
               readline.moveCursor(process.stdout, 0, -1);
               readline.clearLine(process.stdout, 0);
 
-              const formattedMessage = chalk.cyan(input);
-              const authorLabel = chalk.gray(' : You');
+              const textMessage = chalk.white(input);
+              const authorLabel = chalk.green.bold('You');
+              const separator = chalk.gray(' : ');
 
-              const rawMessage = `${input} : You`; // String used just to measure length for spacing
-              const paddingStrLength = Math.max(0, (process.stdout.columns || 80) - rawMessage.length);
+              const rawMessage = `You : ${input}`;
+              const paddingLength = Math.max(0, (process.stdout.columns || 80) - rawMessage.length);
 
-              console.log(' '.repeat(paddingStrLength) + formattedMessage + authorLabel);
+              console.log(' '.repeat(paddingLength) + authorLabel + separator + textMessage);
             } else {
               console.error(chalk.red.bold(`✗ Cannot send message - Not connected to server`));
             }
