@@ -1,12 +1,8 @@
 #!/usr/bin/env node
 
+import chalk from "chalk";
 import { startServer } from "../server/server.js";
 import { startClient } from "../app/app.js";
-
-const errorColor = "\x1b[91m"; // Bright red for errors
-const warningColor = "\x1b[93m"; // Bright yellow for warnings
-const resetColor = "\x1b[0m";
-const infoColor = "\x1b[96m"; // Bright cyan for info
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -14,27 +10,27 @@ const url = args[1] || process.env.PORT || 8080;
 
 function showUsage() {
   console.log(`
-${infoColor}╔════════════════════════════════════════════════════════════╗
-║           Broadcast Server CLI - Usage Guide              ║
-╚════════════════════════════════════════════════════════════╝${resetColor}
+${chalk.cyan.bold("╔════════════════════════════════════════════════════════════╗")}
+${chalk.cyan.bold("║")}           ${chalk.white.bold("Broadcast Server CLI - Usage Guide")}             ${chalk.cyan.bold("║")}
+${chalk.cyan.bold("╚════════════════════════════════════════════════════════════╝")}
 
-${warningColor}Commands:${resetColor}
+${chalk.yellow.bold("Commands:")}
 
-  ${infoColor}start [port]${resetColor}
+  ${chalk.cyan("start")} ${chalk.gray("[port]")}
     Start the WebSocket broadcast server
-    ${warningColor}Example:${resetColor} broadcast-server start
-    ${warningColor}Example:${resetColor} broadcast-server start 3000
+    ${chalk.yellow("Example:")} broadcast-server start
+    ${chalk.yellow("Example:")} broadcast-server start 3000
 
-  ${infoColor}connect <url>${resetColor}
+  ${chalk.cyan("connect")} ${chalk.gray("<url>")}
     Connect to a broadcast server as a client
-    ${warningColor}Example:${resetColor} broadcast-server connect ws://localhost:8000
-    ${warningColor}Example:${resetColor} broadcast-server connect localhost:8000
+    ${chalk.yellow("Example:")} broadcast-server connect ws://localhost:8000
+    ${chalk.yellow("Example:")} broadcast-server connect localhost:8000
 
-${warningColor}Environment Variables:${resetColor}
-  PORT - Default port for the server (default: 8000)
+${chalk.yellow.bold("Environment Variables:")}
+  ${chalk.cyan("PORT")} - Default port for the server (default: 8000)
 
-${warningColor}For more information, visit:${resetColor}
-  https://broadcastserver.onrender.com
+${chalk.yellow.bold("For more information, visit:")}
+  ${chalk.cyan.underline("https://broadcastserver.onrender.com")}
 `);
 }
 
@@ -44,29 +40,29 @@ try {
       try {
         const port = parseInt(url, 10);
         if (isNaN(port) || port < 1 || port > 65535) {
-          console.error(`${errorColor}✗ Invalid port number: ${url}${resetColor}`);
-          console.log(`${warningColor}⚠ Port must be between 1 and 65535${resetColor}`);
+          console.error(chalk.red.bold(`✗ Invalid port number: ${url}`));
+          console.log(chalk.yellow(`⚠ Port must be between 1 and 65535`));
           process.exit(1);
         }
         startServer(port);
       } catch (error) {
-        console.error(`${errorColor}✗ Error starting server:${resetColor}`, error.message);
+        console.error(chalk.red.bold(`✗ Error starting server:`), error.message);
         process.exit(1);
       }
       break;
 
     case "connect":
       if (!url || url === "8080") {
-        console.error(`${errorColor}✗ Server URL is required for connect command${resetColor}`);
-        console.log(`${warningColor}⚠ Usage: broadcast-server connect <server-url>${resetColor}`);
-        console.log(`${warningColor}⚠ Example: broadcast-server connect ws://localhost:8000${resetColor}`);
+        console.error(chalk.red.bold(`✗ Server URL is required for connect command`));
+        console.log(chalk.yellow(`⚠ Usage: broadcast-server connect <server-url>`));
+        console.log(chalk.yellow(`⚠ Example: broadcast-server connect ws://localhost:8000`));
         process.exit(1);
       }
-      
+
       try {
         startClient(url);
       } catch (error) {
-        console.error(`${errorColor}✗ Error connecting to server:${resetColor}`, error.message);
+        console.error(chalk.red.bold(`✗ Error connecting to server:`), error.message);
         process.exit(1);
       }
       break;
@@ -85,30 +81,30 @@ try {
         // Read package.json to get version
         import("../package.json", { assert: { type: "json" } })
           .then((pkg) => {
-            console.log(`${infoColor}Broadcast Server CLI v${pkg.default.version}${resetColor}`);
+            console.log(chalk.cyan.bold(`Broadcast Server CLI v${pkg.default.version}`));
             process.exit(0);
           })
           .catch(() => {
-            console.log(`${infoColor}Broadcast Server CLI${resetColor}`);
+            console.log(chalk.cyan.bold(`Broadcast Server CLI`));
             process.exit(0);
           });
       } catch (error) {
-        console.log(`${infoColor}Broadcast Server CLI${resetColor}`);
+        console.log(chalk.cyan.bold(`Broadcast Server CLI`));
         process.exit(0);
       }
       break;
 
     default:
       if (command) {
-        console.error(`${errorColor}✗ Unknown command: ${command}${resetColor}\n`);
+        console.error(chalk.red.bold(`✗ Unknown command: ${command}\n`));
       } else {
-        console.error(`${errorColor}✗ No command specified${resetColor}\n`);
+        console.error(chalk.red.bold(`✗ No command specified\n`));
       }
       showUsage();
       process.exit(1);
   }
 } catch (error) {
-  console.error(`${errorColor}✗ Fatal error:${resetColor}`, error.message);
-  console.error(error.stack);
+  console.error(chalk.red.bold(`✗ Fatal error:`), error.message);
+  console.error(chalk.red(error.stack));
   process.exit(1);
 }

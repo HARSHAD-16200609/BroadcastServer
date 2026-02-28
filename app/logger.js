@@ -2,31 +2,7 @@
  * Logger utility for consistent error and info logging across the application
  */
 
-// ANSI color codes
-export const colors = {
-  reset: "\x1b[0m",
-  bright: "\x1b[1m",
-  dim: "\x1b[2m",
-  
-  // Regular colors
-  black: "\x1b[30m",
-  red: "\x1b[31m",
-  green: "\x1b[32m",
-  yellow: "\x1b[33m",
-  blue: "\x1b[34m",
-  magenta: "\x1b[35m",
-  cyan: "\x1b[36m",
-  white: "\x1b[37m",
-  
-  // Bright colors
-  brightRed: "\x1b[91m",
-  brightGreen: "\x1b[92m",
-  brightYellow: "\x1b[93m",
-  brightBlue: "\x1b[94m",
-  brightMagenta: "\x1b[95m",
-  brightCyan: "\x1b[96m",
-  brightWhite: "\x1b[97m",
-};
+import chalk from "chalk";
 
 // Log levels
 export const LogLevel = {
@@ -57,9 +33,9 @@ function getTimestamp() {
 /**
  * Format log message with color and symbol
  */
-function formatMessage(level, message, color, symbol) {
+function formatMessage(level, message, colorFn, symbol) {
   const timestamp = getTimestamp();
-  return `${colors.dim}[${timestamp}]${colors.reset} ${color}${symbol} ${level}:${colors.reset} ${message}`;
+  return `${chalk.dim(`[${timestamp}]`)} ${colorFn(`${symbol} ${level}:`)} ${message}`;
 }
 
 /**
@@ -78,16 +54,16 @@ export class Logger {
     const formattedMsg = formatMessage(
       LogLevel.ERROR,
       `[${this.context}] ${message}`,
-      colors.brightRed,
+      chalk.red.bold,
       symbols.error
     );
     console.error(formattedMsg);
-    
+
     if (error) {
       if (error.stack && this.enableDebug) {
-        console.error(`${colors.dim}${error.stack}${colors.reset}`);
+        console.error(chalk.dim(error.stack));
       } else if (error.message) {
-        console.error(`${colors.red}  → ${error.message}${colors.reset}`);
+        console.error(chalk.red(`  → ${error.message}`));
       }
     }
   }
@@ -99,7 +75,7 @@ export class Logger {
     const formattedMsg = formatMessage(
       LogLevel.WARN,
       `[${this.context}] ${message}`,
-      colors.brightYellow,
+      chalk.yellow.bold,
       symbols.warn
     );
     console.warn(formattedMsg);
@@ -112,7 +88,7 @@ export class Logger {
     const formattedMsg = formatMessage(
       LogLevel.INFO,
       `[${this.context}] ${message}`,
-      colors.brightCyan,
+      chalk.cyan.bold,
       symbols.info
     );
     console.log(formattedMsg);
@@ -125,7 +101,7 @@ export class Logger {
     const formattedMsg = formatMessage(
       LogLevel.SUCCESS,
       `[${this.context}] ${message}`,
-      colors.brightGreen,
+      chalk.green.bold,
       symbols.success
     );
     console.log(formattedMsg);
@@ -136,17 +112,17 @@ export class Logger {
    */
   debug(message, data = null) {
     if (!this.enableDebug) return;
-    
+
     const formattedMsg = formatMessage(
       LogLevel.DEBUG,
       `[${this.context}] ${message}`,
-      colors.dim,
+      chalk.dim,
       symbols.debug
     );
     console.log(formattedMsg);
-    
+
     if (data) {
-      console.log(`${colors.dim}${JSON.stringify(data, null, 2)}${colors.reset}`);
+      console.log(chalk.dim(JSON.stringify(data, null, 2)));
     }
   }
 
