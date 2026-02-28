@@ -8,18 +8,18 @@ export function startServer(port = 8080) {
   const wss = new WebSocketServer({ server });
   const clients = new Set();
 
-  const colors = [
-    chalk.red,
-    chalk.green,
-    chalk.yellow,
-    chalk.blue,
-    chalk.magenta,
-    chalk.cyan,
+  const colorThemes = [
+    { name: 'red', text: chalk.red, bg: chalk.bgRed.white.bold },
+    { name: 'green', text: chalk.green, bg: chalk.bgGreen.white.bold },
+    { name: 'yellow', text: chalk.yellow, bg: chalk.bgYellow.black.bold },
+    { name: 'blue', text: chalk.blue, bg: chalk.bgBlue.white.bold },
+    { name: 'magenta', text: chalk.magenta, bg: chalk.bgMagenta.white.bold },
+    { name: 'cyan', text: chalk.cyan, bg: chalk.bgCyan.black.bold },
   ];
 
   function sendMessages(data, ws) {
     try {
-      const styledUsername = chalk.bgGray.white.bold(` ${ws.username} `);
+      const styledUsername = ws.bgColor(` ${ws.username} `);
       const message = `${styledUsername} ${ws.color("●")} : ${data.toString()}`;
 
       for (const client of clients) {
@@ -45,14 +45,20 @@ export function startServer(port = 8080) {
       const queryUsername = reqUrl.searchParams.get("username");
 
       ws.username = queryUsername || animeProtagonists[Math.floor(Math.random() * animeProtagonists.length)];
-      ws.color = colors[Math.floor(Math.random() * colors.length)];
+
+      const theme = colorThemes[Math.floor(Math.random() * colorThemes.length)];
+      ws.color = theme.text;
+      ws.bgColor = theme.bg;
+      ws.themeName = theme.name;
 
       clients.add(ws);
       console.log(`${ws.username} ${ws.color("●")} connected (Total clients: ${clients.size})`);
 
       // Inform the user of their identity
       try {
-        const styledWelcomeName = chalk.bgGray.white.bold(` ${ws.username} `);
+        ws.send(`__CONFIG__${ws.themeName}`);
+
+        const styledWelcomeName = ws.bgColor(` ${ws.username} `);
         ws.send(`Welcome! You are ${styledWelcomeName} ${ws.color("●")}`);
       } catch (sendError) {
         console.error(chalk.red.bold(`✗ Error sending welcome message:`), sendError.message);

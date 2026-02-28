@@ -15,6 +15,7 @@ export function startClient(url) {
   let rl;
   let isConnected = false;
   let isClosing = false;
+  let userBgColor = chalk.bgGray.white.bold;
 
   try {
     // Validate URL format
@@ -89,7 +90,7 @@ export function startClient(url) {
                 readline.clearLine(process.stdout, 0);
 
                 const textMessage = chalk.white(input);
-                const authorLabel = chalk.bgGray.white.bold(' You ');
+                const authorLabel = userBgColor(' You ');
                 // Aligning 'You' format to match others, ' You ' is 5 characters
                 const rawMessage = ` You  : ${input}`;
                 const paddingLength = Math.max(0, (process.stdout.columns || 80) - rawMessage.length);
@@ -124,7 +125,20 @@ export function startClient(url) {
 
       ws.on("message", (msg) => {
         try {
-          console.log(msg.toString());
+          const text = msg.toString();
+          if (text.startsWith("__CONFIG__")) {
+            const themeName = text.substring(10);
+            switch (themeName) {
+              case 'red': userBgColor = chalk.bgRed.white.bold; break;
+              case 'green': userBgColor = chalk.bgGreen.white.bold; break;
+              case 'yellow': userBgColor = chalk.bgYellow.black.bold; break;
+              case 'blue': userBgColor = chalk.bgBlue.white.bold; break;
+              case 'magenta': userBgColor = chalk.bgMagenta.white.bold; break;
+              case 'cyan': userBgColor = chalk.bgCyan.black.bold; break;
+            }
+            return;
+          }
+          console.log(text);
           console.log(); // Add an extra newline after receiving a message
         } catch (error) {
           console.error(chalk.red.bold(`✗ Error displaying message:`), error.message);
