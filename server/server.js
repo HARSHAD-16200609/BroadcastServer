@@ -19,7 +19,8 @@ export function startServer(port = 8080) {
 
   function sendMessages(data, ws) {
     try {
-      const message = `${ws.username} ${ws.color("●")} : ${data.toString()}`;
+      const styledUsername = chalk.bgGray.white.bold(` ${ws.username} `);
+      const message = `${styledUsername} ${ws.color("●")} : ${data.toString()}`;
 
       for (const client of clients) {
         if (client !== ws && client.readyState === WebSocket.OPEN) {
@@ -36,9 +37,14 @@ export function startServer(port = 8080) {
     }
   }
 
-  wss.on("connection", (ws) => {
+  wss.on("connection", (ws, req) => {
     try {
-      ws.username = animeProtagonists[Math.floor(Math.random() * animeProtagonists.length)];
+      // Parse the URL to get the query string
+      const baseURL = req.headers.host ? `http://${req.headers.host}` : 'http://localhost';
+      const reqUrl = new URL(req.url, baseURL);
+      const queryUsername = reqUrl.searchParams.get("username");
+
+      ws.username = queryUsername || animeProtagonists[Math.floor(Math.random() * animeProtagonists.length)];
       ws.color = colors[Math.floor(Math.random() * colors.length)];
 
       clients.add(ws);
