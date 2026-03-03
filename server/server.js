@@ -8,6 +8,9 @@ export function startServer(port = 8080) {
   const server = http.createServer();
   const wss = new WebSocketServer({ server });
   const clients = new Set();
+  const clientMessageTimestamps = new Map();
+  const RATE_LIMIT_MS = 1000;
+  const MAX_MSGS_PER_WINDOW = 5;
 
   const colorThemes = [
     { name: 'red', text: chalk.red, bg: chalk.bgRed.white.bold },
@@ -67,6 +70,21 @@ export function startServer(port = 8080) {
 
       ws.on("message", (data) => {
         try {
+          const now = Date.now();
+          const timestamps = clientMessageTimestamps.get(ws) || [];
+          const recentTimestamps = timestamps.filter(time => now - time < RATE_LIMIT_MS);
+
+          if (recentTimestamps.length >= MAX_MSGS_PER_WINDOW) {
+            console.warn(chalk.yellow(`⚠ Rate limit exceeded by ${ws.username}`));
+            try {
+              ws.send(chalk.red(`\n⚠ Warning: You are sending messages too quickly. Please slow down!`));
+            } catch (e) { }
+            return;
+          }
+
+          recentTimestamps.push(now);
+          clientMessageTimestamps.set(ws, recentTimestamps);
+
           if (!data || data.length === 0) {
             console.warn(chalk.yellow(`⚠ Empty message received from ${ws.username}`));
             return;
@@ -86,10 +104,12 @@ export function startServer(port = 8080) {
         console.error(chalk.red.bold(`✗ WebSocket error for ${ws.username}:`), error.message);
         // Clean up the client on error
         clients.delete(ws);
+        clientMessageTimestamps.delete(ws);
       });
 
       ws.on("close", (code, reason) => {
         clients.delete(ws);
+        clientMessageTimestamps.delete(ws);
         const reasonText = reason ? ` (Reason: ${reason})` : '';
         console.log(`${ws.username} ${chalk.red("●")} Disconnected${reasonText} (Total clients: ${clients.size})`);
       });
